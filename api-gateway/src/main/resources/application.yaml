@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      client:
+        registration:
+          gateway:
+            provider: keycloak
+            client-id: chirp-gateway-client
+            client-secret: IqfL1TQoud44zTsv5a23pUNOb8ghExxq
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/chirp-gateway-client"
+            scope:
+              - openid
+              - profile
+              - roles
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8765/realms/chirp
+
+  cloud:
+    gateway:
+      routes:
+      - id: auth-server
+        uri: http://localhost:8181/
+        predicates:
+          - Path=/token
+      - id: tweets
+        uri: http://localhost:8081/
+        predicates:
+          - Path=/tweets/**
+        filters:
+          - TokenRelay=
+          - RemoveRequestHeader=Cookie
+          - StripPrefix=1
+      - id: feeds
+        uri: http://localhost:8082/
+        predicates:
+          - Path=/feeds/**
+        filters:
+          - TokenRelay=
+          - RemoveRequestHeader=Cookie
+          - StripPrefix=1

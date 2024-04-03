@@ -1,0 +1,39 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8765/realms/chirp
+
+  application:
+    name: chirp:tweet-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tweets
+    username: sa
+    password: password
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 5
+      idle-timeout: 600000
+      maximum-pool-size: 10
+      auto-commit: true
+      pool-name: HikariCorePool
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+tweet-minSize: 1
+tweet-maxSize: 250
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, beans, prometheus
+
+logging:
+  level:
+    org.springframework.security: trace
+
+server:
+  port: 8081
