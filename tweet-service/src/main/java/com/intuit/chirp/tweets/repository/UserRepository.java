@@ -20,23 +20,22 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     @Query("""
         select
-            u.id,
-            u.first_name,
-            u.last_name,
-            u.email,
-            case
-                when f.follower_id = :userId then true
-                else false
-            end as is_following
-          from
-            users u
-          left outer join "following" f
-            on
-            u.id = f.following_id
-          where
-            f.follower_id = :userId
-            or f.follower_id is null
-            and u.id != :userId
+        u.id,
+        u.first_name,
+        u.last_name,
+        u.email,
+        case
+            when f.follower_id = :userId then true
+            else false
+        end as is_following
+       from
+        users u
+       left outer join "following" f
+       on
+        u.id = f.following_id and
+        (f.follower_id = :userId or f.follower_id is null)
+       where
+        u.id != :userId
     """)
     List<UserFollowing> userWithFollowingStatus(@Param("userId") long userId);
 

@@ -48,13 +48,13 @@ const UserList = () => {
 
 
     return (
-        <div className="col-12">
+        <div className="col-12 bg-dark text-light">
             {
                 users.map(user => {
                     return (
                         <div className="row" key={user.id}>
                             <div className="col-1">
-                                <img className="img-thumbnail" src={userPlaceholder} alt="user image" />
+                                <img className="img-fluid rounded-rounded-circle" src={userPlaceholder} alt="user image" />
                             </div>
                             <div className="col-8 text-start">
                                 <h4>{user.firstName}</h4>

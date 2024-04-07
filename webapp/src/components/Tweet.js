@@ -29,7 +29,7 @@ const Tweet = () => {
     return (
         <form className="col-12 mt-4" onSubmit={postTweet}>
             <div className="mb-1">
-                <textarea className="form-control" placeholder="tweet to the world!" 
+                <textarea className="form-control bg-dark text-light border-secondary" placeholder="tweet to the world!" 
                     id="tweetContent" rows="3" value={tweet} onChange={(e) => setTweet(e.target.value)} />
             </div>
             <div className="text-end">
