@@ -1,27 +1,22 @@
-package com.intuit.chirp.tweets.model.domain;
+package com.intuit.chirp.tweets.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("users")
-public class User {
-    @Id
-    private Long id;
-    @Column("ldap_id")
-    private String ldapId;
+@Builder
+public class UserFollowing {
+    private long id;
     @Column("first_name")
     private String firstName;
     @Column("last_name")
     private String lastName;
-    @Column("email")
     private String email;
+    @Column("is_following")
+    private boolean isFollowing;
 }

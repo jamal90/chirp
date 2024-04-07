@@ -25,7 +25,7 @@ public class UserServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        VALID_USER = User.builder().id(1L).fistName("valid").lastName("user").email("validuser.gmail.com").ldapId(VALID_ID).build();
+        VALID_USER = User.builder().id(1L).firstName("valid").lastName("user").email("validuser.gmail.com").ldapId(VALID_ID).build();
         Mockito.when(userRepository.findByLdapId(VALID_ID)).thenReturn(VALID_USER);
 
     }

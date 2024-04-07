@@ -23,7 +23,7 @@ spring:
       connection-timeout: 30000
 
 tweet-minSize: 1
-tweet-maxSize: 250
+tweet-maxSize: 1024
 
 management:
   endpoints:
@@ -33,7 +33,7 @@ management:
 
 logging:
   level:
-    org.springframework.security: trace
+    root: info
 
 server:
   port: 8081

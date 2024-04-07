@@ -26,7 +26,9 @@ spring:
       - id: auth-server
         uri: http://localhost:8181/
         predicates:
-          - Path=/token
+          - Path=/auth/token/**
+        filters:
+          - StripPrefix=1
       - id: tweets
         uri: http://localhost:8081/
         predicates:
@@ -43,3 +45,19 @@ spring:
           - TokenRelay=
           - RemoveRequestHeader=Cookie
           - StripPrefix=1
+      - id: webapp
+        uri: http://localhost:3001/
+        predicates:
+          - Path=/web/**
+        filters:
+          - StripPrefix=1
+      - id: static
+        uri: http://localhost:3001/
+        predicates:
+          - Path=/static/**
+logging:
+  level:
+    org:
+      springframework:
+        security: trace
+

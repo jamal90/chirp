@@ -11,9 +11,12 @@ public record TweetResponse(
         Long id,
         @NotNull
         Long userId,
+        String firstName,
+        String lastName,
         @NotNull
         String content,
         @NotNull
         Timestamp createdAt) {
+
 }
 

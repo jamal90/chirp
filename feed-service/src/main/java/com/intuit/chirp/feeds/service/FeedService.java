@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.chirp.feeds.exception.BadRequestException;
 import com.intuit.chirp.feeds.model.domain.Tweet;
+import com.intuit.chirp.feeds.model.domain.User;
 import com.intuit.chirp.feeds.model.dto.FeedResponse;
 import com.intuit.chirp.feeds.model.dto.TweetResponse;
 import com.intuit.chirp.feeds.model.mapper.TweetMapper;
@@ -68,7 +69,15 @@ public class FeedService {
                 return FeedResponse.builder().tweets(new ArrayList<>()).build();
             }
             ImmutablePair<List<Tweet>, UUID> topFeedData = topKFeedsProcessor.getTopFeeds(userTweets, lastProcessedTimestamp.get());
-            List<TweetResponse> topTweets = topFeedData.left.stream().map(tweetMapper::toTweetResponse).collect(Collectors.toList());
+            List<TweetResponse> topTweets = topFeedData.left.stream().map(tweetMapper::toTweetResponseBuilder)
+                    .map(tweetResponseBuilder -> {
+                        TweetResponse tmp = tweetResponseBuilder.build(); // todo - check if this can be done better ?
+                        User user = userService.getUserById(tmp.userId());
+                        return tweetResponseBuilder.firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .build();
+                    })
+                    .collect(Collectors.toList());
 
             //delete the used token
             token.ifPresent(this::deleteLastUsedToken);

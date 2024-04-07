@@ -2,6 +2,7 @@ package com.intuit.chirp.tweets.service;
 
 import com.intuit.chirp.tweets.model.domain.Tweet;
 import com.intuit.chirp.tweets.model.domain.User;
+import com.intuit.chirp.tweets.model.dto.TweetRequest;
 import com.intuit.chirp.tweets.model.dto.TweetResponse;
 import com.intuit.chirp.tweets.model.mapper.TweetMapper;
 import com.intuit.chirp.tweets.repository.TweetRepository;
@@ -23,13 +24,21 @@ public class TweetService {
     private final TweetRepository tweetRepository;
     private final UserService userService;
     private final MeterRegistry meterRegistry;
-    public Tweet save(Tweet tweet, Jwt principal) {
+    private final TweetMapper tweetMapper;
+    public TweetResponse save(TweetRequest tweetRequest, Jwt principal) {
+        Tweet tweet = tweetMapper.toTweet(tweetRequest);
         incTweetMetrics();
 
         User user = userService.getUserByLdapId(getUserName(principal));
         tweet.setUserId(user.getId());
         tweet.setCreatedAt(Timestamp.from(Instant.now()));
-        return tweetRepository.save(tweet);
+        Tweet savedTweet = tweetRepository.save(tweet);
+
+        return tweetMapper.toTweetResponseBuilder(savedTweet)
+                .userFirstName(user.getFirstName())
+                .userLastName(user.getLastName())
+                .build();
+
     }
 
     private void incTweetMetrics() {
@@ -41,8 +50,13 @@ public class TweetService {
         counter.increment();
     }
 
-    public List<Tweet> getTweetsByUser(Jwt userPrincipal) {
+    public List<TweetResponse> getTweetsByUser(Jwt userPrincipal) {
         User user = userService.getUserByLdapId(getUserName(userPrincipal));
-        return tweetRepository.getAllByUserId(user.getId());
+        return tweetRepository.getAllByUserIdOrderByCreatedAtDesc(user.getId())
+                .stream()
+                .map(tweetMapper::toTweetResponseBuilder)
+                .map(tweetResponseBuilder -> tweetResponseBuilder.userFirstName(user.getFirstName())
+                        .userLastName(user.getLastName()).build())
+                .toList();
     }
 }

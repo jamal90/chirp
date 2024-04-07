@@ -13,6 +13,9 @@ public interface TweetMapper {
     @Mapping(target = "userId", ignore = true)
     Tweet toTweet(TweetRequest tweetRequest);
 
-    TweetResponse toTweetResponse(Tweet tweet);
+    TweetResponse.TweetResponseBuilder toTweetResponseBuilder(Tweet tweet);
 
+    default TweetResponse.TweetResponseBuilder createTweetResponseBuilder() {
+        return TweetResponse.builder();
+    }
 }

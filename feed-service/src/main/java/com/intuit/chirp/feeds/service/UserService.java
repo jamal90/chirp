@@ -18,4 +18,9 @@ public class UserService {
         log.debug("fetching user info from DB");
         return userRepository.findByLdapId(ldapId);
     }
+
+    @Cacheable(value = "userCacheById")
+    public User getUserById(long id) {
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("user not present"));
+    }
 }

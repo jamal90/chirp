@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface TweetRepository extends CrudRepository<com.intuit.chirp.tweets.model.domain.Tweet, Long> {
-    List<Tweet> getAllByUserId(long userId);
+    List<Tweet> getAllByUserIdOrderByCreatedAtDesc(long userId);
 }

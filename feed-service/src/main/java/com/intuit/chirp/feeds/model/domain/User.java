@@ -17,7 +17,7 @@ public class User {
     @Column("ldap_id")
     private String ldapId;
     @Column("first_name")
-    private String fistName;
+    private String firstName;
     @Column("last_name")
     private String lastName;
     @Column("email")

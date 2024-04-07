@@ -8,5 +8,9 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TweetMapper {
 
-    TweetResponse toTweetResponse(Tweet tweet);
+    TweetResponse.TweetResponseBuilder toTweetResponseBuilder(Tweet tweet);
+
+    default TweetResponse.TweetResponseBuilder create() {
+        return TweetResponse.builder();
+    }
 }
