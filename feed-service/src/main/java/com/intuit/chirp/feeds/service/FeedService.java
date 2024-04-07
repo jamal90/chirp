@@ -14,10 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
@@ -38,14 +38,14 @@ public class FeedService {
     private final UserService userService;
 
 
-    public FeedResponse fetchLatestUserFeed(Principal principal, Optional<UUID> token) {
+    public FeedResponse fetchLatestUserFeed(Jwt principal, Optional<UUID> token) {
         try {
-            long userId = userService.getUserByLdapId(principal.getName()).getId();
+            long userId = userService.getUserByLdapId(getUserName(principal)).getId();
 
             //get all users the current user follows.
             List<Long> followedIds = getAllFollowers(userId);
             log.debug("{}", followedIds);
-            if (followedIds.size() == 0) {
+            if (followedIds.isEmpty()) {
                 return FeedResponse.builder().tweets(new ArrayList<>()).build();
             }
 
@@ -65,7 +65,7 @@ public class FeedService {
 
             Map<Long, List<Tweet>> userTweets = getAllTweets(lastProcessedTimestamp.get());
             log.debug("{}", userTweets);
-            if (userTweets.size() == 0) {
+            if (userTweets.isEmpty()) {
                 return FeedResponse.builder().tweets(new ArrayList<>()).build();
             }
             ImmutablePair<List<Tweet>, UUID> topFeedData = topKFeedsProcessor.getTopFeeds(userTweets, lastProcessedTimestamp.get());
@@ -127,6 +127,10 @@ public class FeedService {
     private List<Long> getAllFollowers(long userId) {
         return new ArrayList<>(followingRepository.findAllFollowing(userId));
 
+    }
+
+    private static String getUserName(Jwt principal) {
+        return principal.getClaims().get("preferred_username").toString();
     }
 
 }

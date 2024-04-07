@@ -1,6 +1,11 @@
 spring:
   application:
     name: chirp:feed-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8765/realms/chirp
 
   datasource:
     url: jdbc:postgresql://localhost:5433/feeds

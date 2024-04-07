@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.security.Principal;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,14 +33,14 @@ public class FeedServiceTest {
     @Autowired
     private FeedService feedService;
     @Mock
-    Principal principal;
+    Jwt principal;
     @MockBean
     private JwtDecoder jwtDecoder;
 
 
     @Test
     public void givenValidPrincipleAndEmptyAndValidTokenWhenQueriedFetchLatestFeedThenExpectValidFeedResponse() {
-        when(principal.getName()).thenReturn("ben");
+        when(principal.getClaims()).thenReturn(Map.of("preferred_username", "ben"));
         FeedResponse feedResponse = feedService.fetchLatestUserFeed(principal, Optional.empty());
         Assertions.assertNotNull(feedResponse);
         assertFalse(feedResponse.tweets().isEmpty());
@@ -54,14 +56,14 @@ public class FeedServiceTest {
 
     @Test
     public void givenValidPrincipleAndInvalidTokenWhenQueriedFetchLatestFeedThenExpectValidFeedResponse() {
-        when(principal.getName()).thenReturn("ben");
+        when(principal.getClaims()).thenReturn(Map.of("preferred_username", "ben"));
         Assertions.assertThrows(BadRequestException.class, () -> feedService.fetchLatestUserFeed(principal, Optional.of(UUID.randomUUID())));
     }
 
 
     @Test
     public void givenValidPrincipleAndEmptyTokenWhenQueriedFetchLatestFeedThenExpectEmptyFeedResponse() {
-        when(principal.getName()).thenReturn("jerry");
+        when(principal.getClaims()).thenReturn(Map.of("preferred_username", "jerry"));
         FeedResponse feedResponse = feedService.fetchLatestUserFeed(principal, Optional.empty());
         Assertions.assertNotNull(feedResponse);
         assertEquals(0, feedResponse.tweets().size());
@@ -69,7 +71,7 @@ public class FeedServiceTest {
 
     @Test
     public void givenValidPrincipleAndEmptyTokenAndInactiveFollowingWhenQueriedFetchLatestFeedThenExpectEmptyFeedResponse() {
-        when(principal.getName()).thenReturn("bob");
+        when(principal.getClaims()).thenReturn(Map.of("preferred_username", "bob"));
         FeedResponse feedResponse = feedService.fetchLatestUserFeed(principal, Optional.empty());
         Assertions.assertNotNull(feedResponse);
         assertEquals(0, feedResponse.tweets().size());

@@ -5,6 +5,8 @@ import com.intuit.chirp.feeds.service.FeedService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +26,7 @@ public class FeedController {
 
     @GetMapping("")
     public FeedResponse getFeedPaginated(@Valid @RequestParam(required = false)
-                                         UUID token, Principal principal) {
+                                         UUID token, @AuthenticationPrincipal Jwt principal) {
         return feedService.fetchLatestUserFeed(principal, Optional.ofNullable(token));
     }
 
