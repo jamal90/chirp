@@ -14,30 +14,6 @@ A simple clone of Twitter intended to demonstrate building event-driven microser
 
 ## Architecture overview
 
-### Capacity Estimations
-
-In order to decide the backing services & high level design, we'll start with volume estimation for  10k daily active users with 10 messages per day and content limited to text:
-
- - Messages per day = 10,000 * 10 = 100,000 messages/day
- - Messages QPS = 100,000 / (24 hours * 3600 seconds) is approximately 1 message per second, peak would be 2 qps
- - Storage for tweet metadata: 10,000 * 10 tweets * 32 bytes = 3.2 MB per day
- - Storage for text content: 10,000 * 10 tweets * 240 bytes = 24 MB per day
- - 5-year storage for text content: (3.2 MB + 24 MB) * 365 days * 5 years = 40 GB (rounded)
-
-### Architecture Decision Records (ADRs)
-
-#### On-demand Feed Generation
-
-* Typically, twitter like services tend to follow the fan-out approach for feed timeline generation so that the timeline for each user is already generated. 
-* Based on the volume of query the application needs to serve, precalculating the feed using a fan out service could be an over-engineered approach for the given load characteristics. 
-* Assuming a user has 1K following and each user has 100 tweets, the amount of data to be processed to generate the timeline is 100 K entries. Given the heap-based feed generation logic, this requires 100K * 16B (tweet id + timestamp are stored in heap) requires 1.5MB of data loaded in memory per request. Feed generation per request is hence the used approach.
-
-#### Separating Write vs Read Traffic
-
-- Given a twitter like service, which is more read-heavy, we'd have to scale the read services & DB independent of the write service. 
-- It would help the architecture extensible in terms of scaling the services separately if needed and flexible in terms of how data is being stored or feed is generated.
-- The application follows a CQRS pattern to writing tweets (command) and feed generation (read queries). 
-
 ### High Level Design
 
 The application uses a microservices based approach to separate the domain. There are 2 microservice in the system.
@@ -54,19 +30,14 @@ The application uses a microservices based approach to separate the domain. Ther
 ## Design Details
 
 ### User feed Generation
-
 - For every valid /feed request, the feeds service queries the ids of the users the logged-in user follows.
 - The service then fetches the tweets of all the followings from the db, based on reverse chronological order of tweets.
-- This data is used by TopKFeedsProcessor service that uses a max heap that uses the timestamp info
-  to heapify the tweet data.
+- This data is used by TopKFeedsProcessor service that uses a max heap that uses the timestamp info to heapify the tweet data.
 - The feeds are extracted from the heap according to the maximum feed size configured per application.
-- The processor maintains a map of user id versus the last tweet timestamp processed for feed generation to enable
-  pagination.
-- The feed service uses a token based approach; UUID is generated against the last processed timestamp and the data is
-  persisted.
+- The processor maintains a map of user id versus the last tweet timestamp processed for feed generation to enable pagination.
+- The feed service uses a token based approach; UUID is generated against the last processed timestamp and the data is persisted.
 - The application provides this UUID as part of the /feeds response.
-- For a paginated feed, the application serves /feed with a valid UUID token. Feed service ensures that this token is
-  invalidated once used to fetch the next page.
+- For a paginated feed, the application serves /feed with a valid UUID token. Feed service ensures that this token is invalidated once used to fetch the next page.
 
 ### Security
 
@@ -79,8 +50,7 @@ The application uses a microservices based approach to separate the domain. Ther
 
 - The feeds service works on a read replica of the tweets db.
 - The application uses Debezium for change data capture.
-- The postgreSQL connector is configured as the source to fetch the data tweets db and is written to the configured
-  kafka topics.
+- The postgreSQL connector is configured as the source to fetch the data tweets db and is written to the configured kafka topics.
 - The JDBC sink connectors are defined per table to write data into the feeds db.
 - The application makes use of lenses which is a container environment for multiple source, sink connectors and kafka
   cluster to enable the data flow
