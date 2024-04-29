@@ -1,21 +1,9 @@
-# Intuit Craft (Backend) - Intuit Chirp
+# Chirp
 
 ## Design Inputs
 
-### Business Case
-
-As part of enhancing our internal services which are available to our employees, we would like to build a Twitter like
-solution for our employees, where employees can tweet and have followers.
-
 ### Functional Requirements
-
-1) We have 10K employees.
-2) Employees can follow/unfollow their colleagues
-3) Employees can post (or tweet) messages to their followers.
-4) Use corporate LDAP for user Management.
-5) On an average, every employee will send approximately 10 messages a day to their followers.
-6) On the home page we need to show 100 most recent tweets. Optionally you can support pagination.
-7) The Restful service /feed should list 100 recent tweets for the logged-in user.
+A simple clone of Twitter intended to demonstrate building event-driven microservice architecture 
 
 ### Non Functional Requirements
 
@@ -80,12 +68,11 @@ The application uses a microservices based approach to separate the domain. Ther
 - For a paginated feed, the application serves /feed with a valid UUID token. Feed service ensures that this token is
   invalidated once used to fetch the next page.
 
-### LDAP Integration
+### Security
 
 - The application uses Spring Cloud gateway to define the paths and destination for different services
 - The application uses UnboundID, an open source java based SDK for LDAP server integration with SpringBoot.
-- The Spring security uses the ldap authentication based on the data fed into LDAP directory server for all the
-  application APIs.
+- The Spring security uses the ldap authentication based on the data fed into LDAP directory server for all the application APIs.
 - The auth server generates a jwt based on the valid basic auth passed along the incoming request, which in turn would be used by tweet and feed service. 
 
 ### Data pipeline for Read Replicas
